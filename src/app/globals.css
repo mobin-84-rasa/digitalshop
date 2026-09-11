@@ -18,6 +18,7 @@
 
 html {
   background: var(--ink);
+  overflow-x: clip;
 }
 
 body {
@@ -116,6 +117,12 @@ body {
   transform-origin: top center;
 }
 
-.museum-caption dt {
-  letter-spacing: 0.28em;
+.showcase-stage {
+  will-change: transform, opacity;
+  opacity: 0;
+  max-width: 100%;
+}
+
+.gallery-wall .info-line {
+  opacity: 0;
 }

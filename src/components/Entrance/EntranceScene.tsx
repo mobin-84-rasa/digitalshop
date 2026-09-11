@@ -73,6 +73,7 @@ export default function EntranceScene() {
               scrub: 1.35,
               anticipatePin: 1,
               invalidateOnRefresh: true,
+              refreshPriority: 20,
               onUpdate: (self) => {
                 doorStage.style.pointerEvents =
                   self.progress > 0.82 ? "none" : "auto";
@@ -160,7 +161,15 @@ export default function EntranceScene() {
         },
       );
 
-      requestAnimationFrame(() => ScrollTrigger.refresh());
+      const refresh = () => ScrollTrigger.refresh();
+      const frame = requestAnimationFrame(refresh);
+      const timer = window.setTimeout(refresh, 160);
+
+      return () => {
+        cancelAnimationFrame(frame);
+        window.clearTimeout(timer);
+        mm.revert();
+      };
     },
     { scope: rootRef },
   );

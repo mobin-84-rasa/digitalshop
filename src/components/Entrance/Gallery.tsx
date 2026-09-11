@@ -14,8 +14,13 @@ export default function Gallery() {
         <p className="persian-name mt-3 text-sm text-[#f2e8d5]/50">مجموعه</p>
       </div>
 
-      {collectionCarpets.map((carpet) => (
-        <CarpetShowcase key={carpet.id} carpet={carpet} mode="scroll" />
+      {collectionCarpets.map((carpet, index) => (
+        <CarpetShowcase
+          key={carpet.id}
+          carpet={carpet}
+          mode="scroll"
+          index={index}
+        />
       ))}
 
       <footer className="flex flex-col items-center px-6 py-32 text-center">
