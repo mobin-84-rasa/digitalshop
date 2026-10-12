@@ -13,11 +13,22 @@ User = get_user_model()
 DEFAULT_ASSETS_DIR = Path(settings.BASE_DIR).parent / 'public' / 'assets'
 ASSETS_DIR = Path(os.environ.get('SEED_ASSETS_DIR', DEFAULT_ASSETS_DIR))
 
+DEFAULT_PASSWORD = os.environ.get('DJANGO_SEED_ADMIN_PASSWORD', 'admin')
+
 CATEGORIES = [
     {'slug': 'tabriz', 'ar': 'تبريز', 'fa': 'تبریز', 'en': 'Tabriz'},
     {'slug': 'kashan', 'ar': 'كاشان', 'fa': 'کاشان', 'en': 'Kashan'},
     {'slug': 'nain', 'ar': 'نائين', 'fa': 'نائین', 'en': 'Nain'},
     {'slug': 'isfahan', 'ar': 'أصفهان', 'fa': 'اصفهان', 'en': 'Isfahan'},
+]
+
+USERS = [
+    {'username': 'admin', 'email': 'admin@example.com', 'first_name': 'Site',
+     'last_name': 'Admin', 'is_staff': True, 'is_superuser': True},
+    {'username': 'editor', 'email': 'editor@example.com', 'first_name': 'Amir',
+     'last_name': 'Editor', 'is_staff': True, 'is_superuser': False},
+    {'username': 'customer', 'email': 'customer@example.com', 'first_name': 'Sara',
+     'last_name': 'Nouri', 'is_staff': False, 'is_superuser': False},
 ]
 
 CARPETS = [
@@ -101,39 +112,91 @@ CARPETS = [
     },
 ]
 
+INQUIRIES = [
+    {
+        'name': 'Layla Hassan', 'email': 'layla@example.com', 'phone': '+971500000001',
+        'message': 'Interested in the Tabriz Heritage rug — is the price negotiable?',
+        'carpet_slug': 'tabriz-heritage', 'status': 'new',
+    },
+    {
+        'name': 'Omid Karimi', 'email': 'omid@example.com', 'phone': '+989120000002',
+        'message': 'Do you ship the Nain Silk rug to Tehran?',
+        'carpet_slug': 'nain-silk', 'status': 'in_progress',
+    },
+    {
+        'name': 'Sara Nouri', 'email': 'sara@example.com', 'phone': '+971500000003',
+        'message': 'Can I book a private viewing for the Kashan Garden?',
+        'carpet_slug': 'kashan-garden', 'status': 'done',
+    },
+    {
+        'name': 'Mark Bennett', 'email': 'mark@example.com', 'phone': '+447700900004',
+        'message': 'What are the delivery options for the UK?',
+        'carpet_slug': None, 'status': 'new',
+    },
+]
+
 
 class Command(BaseCommand):
-    help = 'Seed demo categories, carpets (with images), inquiries and an admin user.'
+    help = 'Seed demo users, categories, carpets (with images) and inquiries.'
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--password',
+            default=DEFAULT_PASSWORD,
+            help="Password for every seeded demo user "
+                 "(default: DJANGO_SEED_ADMIN_PASSWORD or 'admin').",
+        )
+        parser.add_argument(
+            '--reset-password',
+            action='store_true',
+            help='Also overwrite the password of demo users that already exist.',
+        )
 
     def handle(self, *args, **options):
-        self._seed_admin()
+        password = options['password']
+        reset = options['reset_password']
+        self._seed_users(password, reset)
         categories = self._seed_categories()
         self._seed_carpets(categories)
         self._seed_inquiries()
-        self.stdout.write(self.style.SUCCESS('Demo data seeded.'))
+        self._print_summary()
 
-    def _seed_admin(self):
-        password = os.environ.get('DJANGO_SEED_ADMIN_PASSWORD', 'admin12345')
-        user, created = User.objects.get_or_create(
-            username='admin',
-            defaults={
-                'email': 'admin@example.com',
-                'is_staff': True,
-                'is_superuser': True,
-                'is_active': True,
-            },
-        )
-        if created:
-            user.set_password(password)
-            user.save()
-            self.stdout.write(
-                self.style.WARNING(
-                    f'Created admin user "admin" (password: {password}). '
-                    'Change it before deploying.'
-                )
+    def _seed_users(self, password, reset):
+        for data in USERS:
+            user, created = User.objects.get_or_create(
+                username=data['username'],
+                defaults={
+                    'email': data['email'],
+                    'first_name': data['first_name'],
+                    'last_name': data['last_name'],
+                    'is_staff': data['is_staff'],
+                    'is_superuser': data['is_superuser'],
+                    'is_active': True,
+                },
             )
-        else:
-            self.stdout.write('Admin user "admin" already exists; left unchanged.')
+            changed = created
+            for field in ('email', 'first_name', 'last_name', 'is_staff', 'is_superuser'):
+                if getattr(user, field) != data[field]:
+                    setattr(user, field, data[field])
+                    changed = True
+            if not user.is_active:
+                user.is_active = True
+                changed = True
+            if created or reset or not user.has_usable_password():
+                user.set_password(password)
+                changed = True
+            if changed:
+                user.save()
+            verb = 'Created' if created else ('Updated' if changed else 'Kept')
+            self.stdout.write(f'  {verb} user "{user.username}"')
+
+        self.stdout.write(
+            self.style.WARNING(
+                f'Demo users ready with password "{password}" (username: admin). '
+                'Change this before deploying.'
+            )
+        )
+        self.stdout.write(f'Users: {User.objects.count()}')
 
     def _seed_categories(self):
         result = {}
@@ -189,16 +252,28 @@ class Command(BaseCommand):
         self.stdout.write(f'Carpets: {Carpet.objects.count()}  Images: {CarpetImage.objects.count()}')
 
     def _seed_inquiries(self):
-        if Inquiry.objects.exists():
-            return
-        sample = [
-            {'name': 'Layla Hassan', 'email': 'layla@example.com', 'phone': '+971500000001',
-             'message': 'Interested in the Tabriz Heritage rug — is the price negotiable?'},
-            {'name': 'Omid Karimi', 'email': 'omid@example.com', 'phone': '+989120000002',
-             'message': 'Do you ship the Nain Silk rug to Tehran?'},
-            {'name': 'Sara Nouri', 'email': 'sara@example.com', 'phone': '+971500000003',
-             'message': 'Can I book a private viewing for the Kashan Garden?'},
-        ]
-        for item in sample:
-            Inquiry.objects.create(**item)
+        for data in INQUIRIES:
+            carpet = None
+            if data['carpet_slug']:
+                carpet = Carpet.objects.filter(slug=data['carpet_slug']).first()
+            Inquiry.objects.get_or_create(
+                email=data['email'],
+                message=data['message'],
+                defaults={
+                    'name': data['name'],
+                    'phone': data['phone'],
+                    'status': data['status'],
+                    'carpet': carpet,
+                },
+            )
         self.stdout.write(f'Inquiries: {Inquiry.objects.count()}')
+
+    def _print_summary(self):
+        self.stdout.write(self.style.SUCCESS('Demo data seeded.'))
+        self.stdout.write(
+            f'  users={User.objects.count()} '
+            f'categories={Category.objects.count()} '
+            f'carpets={Carpet.objects.count()} '
+            f'images={CarpetImage.objects.count()} '
+            f'inquiries={Inquiry.objects.count()}'
+        )

@@ -66,16 +66,31 @@ http://localhost:8000/admin/).
 > If you prefer not to activate the venv, call the interpreter directly, e.g.
 > `../venv/bin/python manage.py migrate` from inside `backend/`.
 
-### Demo admin credentials
+### Demo data
 
-`seed_demo` creates the superuser **only if it does not already exist** and never
-resets an existing password:
+`seed_demo` creates the demo users, categories, rugs (copying the images from
+`public/assets`) and inquiries. It is idempotent — re-running it updates the
+existing rows instead of duplicating them — and it never resets an existing
+user's password unless you pass `--reset-password`.
 
-- username: `admin`
-- password: `admin12345` (or the value of `DJANGO_SEED_ADMIN_PASSWORD`)
+Seeded users (they all share the same password):
+
+| Username   | Role             |
+| ---------- | ---------------- |
+| `admin`    | superuser        |
+| `editor`   | staff (no admin) |
+| `customer` | regular user     |
+
+- password: `admin` (or the value of `DJANGO_SEED_ADMIN_PASSWORD`)
 
 Change this before deploying. Log in to the dashboard at
 `http://localhost:3000/ar/admin/login` (or `/fa/admin/login`, `/en/admin/login`).
+
+```bash
+python manage.py seed_demo                      # admin/admin + demo data
+python manage.py seed_demo --reset-password     # force the known password
+python manage.py seed_demo --password secret    # use a custom password
+```
 
 ## 2. Frontend (Next.js)
 
@@ -115,7 +130,7 @@ The frontend talks to the API via `NEXT_PUBLIC_API_URL` and, in development,
 | `DJANGO_ALLOWED_HOSTS`        | `localhost,127.0.0.1` | Comma-separated                            |
 | `DJANGO_CORS_ORIGINS`         | —                     | Comma-separated (CORS is open while DEBUG) |
 | `DJANGO_CSRF_TRUSTED_ORIGINS` | —                     | Comma-separated                            |
-| `DJANGO_SEED_ADMIN_PASSWORD`  | `admin12345`          | Used only when seeding a new admin         |
+| `DJANGO_SEED_ADMIN_PASSWORD`  | `admin`               | Seed password for the demo users           |
 | `SEED_ASSETS_DIR`             | `../public/assets`    | Source images for `seed_demo`              |
 
 When `DJANGO_DEBUG=false`, HTTPS/HSTS/secure-cookie hardening is enabled
