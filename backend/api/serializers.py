@@ -33,12 +33,14 @@ class CarpetImageSerializer(serializers.ModelSerializer):
 class CarpetListSerializer(serializers.ModelSerializer):
     category = serializers.StringRelatedField()
     primary_image = serializers.SerializerMethodField()
+    images = serializers.SerializerMethodField()
 
     class Meta:
         model = Carpet
         fields = (
             'id', 'title', 'slug', 'category', 'price',
-            'origin', 'stock_status', 'primary_image', 'colors',
+            'origin', 'stock_status', 'primary_image', 'images', 'colors',
+            'width', 'length',
         )
 
     def get_primary_image(self, obj):
@@ -51,6 +53,14 @@ class CarpetListSerializer(serializers.ModelSerializer):
             request = self.context.get('request')
             return request.build_absolute_uri(url) if request else url
         return None
+
+    def get_images(self, obj):
+        request = self.context.get('request')
+        urls = []
+        for img in obj.images.all():
+            url = img.image.url
+            urls.append(request.build_absolute_uri(url) if request else url)
+        return urls
 
 
 class CarpetDetailSerializer(serializers.ModelSerializer):
