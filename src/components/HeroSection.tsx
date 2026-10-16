@@ -1,14 +1,23 @@
 "use client";
 
-import React from "react";
+import React, { useRef } from "react";
 import Image from "next/image";
-import { motion, type Variants } from "framer-motion";
+import {
+  motion,
+  useReducedMotion,
+  useScroll,
+  useSpring,
+  useTransform,
+  type Variants,
+} from "framer-motion";
+import { ArrowRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import Magnetic from "@/components/Magnetic";
+import { DURATION, EASE } from "@/lib/motion";
 
 const heroRug = "/images/pic1.jpg";
 
-/* پالت جدید: کرم روشن + زرشکی */
 const CREAM = "#F5EBDC";
 const CREAM_SOFT = "#EFE3D0";
 const BURGUNDY = "#6B1F2E";
@@ -16,28 +25,40 @@ const BURGUNDY = "#6B1F2E";
 const FRAME_PATH =
   "M 0 0.062 L 0.31 0.062 C 0.355 0.062 0.372 0.07 0.392 0.098 C 0.422 0.138 0.452 0.152 0.5 0.152 C 0.548 0.152 0.578 0.138 0.608 0.098 C 0.628 0.07 0.645 0.062 0.69 0.062 L 1 0.062 L 1 0.888 C 0.73 0.888 0.66 0.892 0.612 0.932 C 0.572 0.966 0.54 0.988 0.5 0.988 C 0.46 0.988 0.428 0.966 0.388 0.932 C 0.34 0.892 0.27 0.888 0 0.888 Z";
 
-const containerVariants: Variants = {
-  hidden: { opacity: 0 },
+/** Title words rise out from behind a mask, one after another. */
+const wordParent: Variants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.08, delayChildren: 0.55 } },
+};
+
+const wordChild: Variants = {
+  hidden: { y: "115%" },
   visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.18, delayChildren: 0.4 },
+    y: "0%",
+    transition: { duration: DURATION.reveal, ease: EASE.standard },
   },
 };
 
-const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 24 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.85, ease: [0.22, 1, 0.36, 1] },
-  },
-};
+function SplitHeading({ text }: { text: string }) {
+  return (
+    <span className="inline">
+      {text.split(" ").map((word, i) => (
+        <span
+          key={`${word}-${i}`}
+          className="inline-block align-bottom"
+          style={{ paddingBottom: "0.08em" }}
+        >
+          <motion.span variants={wordChild} className="inline-block">
+            {word}
+          </motion.span>
+          {"\u00A0"}
+        </span>
+      ))}
+    </span>
+  );
+}
 
-function GeometricOrnament({
-  className,
-}: {
-  className?: string;
-}): React.JSX.Element {
+function GeometricOrnament({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 200 200" className={className} aria-hidden="true">
       <g fill="none" stroke={BURGUNDY} strokeWidth="1.05" opacity="0.95">
@@ -75,14 +96,36 @@ function GeometricOrnament({
 
 export default function HeroSection(): React.JSX.Element {
   const t = useTranslations("Common");
+  const ref = useRef<HTMLElement>(null);
+  const reduced = useReducedMotion();
+
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start start", "end start"],
+  });
+
+  const rawY = useTransform(scrollYProgress, [0, 1], [0, 110]);
+  const rawScale = useTransform(scrollYProgress, [0, 1], [1, 1.12]);
+  const rawRotate = useTransform(scrollYProgress, [0, 1], [0, 150]);
+  const imgY = useSpring(rawY, { stiffness: 120, damping: 26, mass: 0.6 });
+  const imgScale = useSpring(rawScale, {
+    stiffness: 120,
+    damping: 26,
+    mass: 0.6,
+  });
+  const rotate = useSpring(rawRotate, { stiffness: 60, damping: 20 });
+
+  const set = <T,>(value: T) => (reduced ? undefined : value);
 
   return (
     <section
+      ref={ref}
       className="relative isolate w-full overflow-hidden"
       style={{
         background: `linear-gradient(180deg, ${CREAM} 0%, ${CREAM_SOFT} 100%)`,
         color: BURGUNDY,
-        fontFamily: "var(--font-AKETAB), var(--font-cinzel), Georgia, serif",
+        fontFamily:
+          "var(--font-noto-nastaliq), var(--font-AKETAB), Georgia, serif",
       }}
     >
       <svg width="0" height="0" className="absolute" aria-hidden="true">
@@ -96,79 +139,123 @@ export default function HeroSection(): React.JSX.Element {
       <div className="relative mx-auto min-h-[calc(120svh-7.5rem)] w-full max-w-[1440px] px-3 pb-4 sm:px-5 lg:px-7">
         <div className="relative h-full min-h-[calc(100svh-7.5rem)] w-full">
           <div
-            className="absolute inset-0"
+            className="hero-media absolute inset-0"
             style={{ clipPath: "url(#hero-frame)" }}
           >
-            <Image
-              src={heroRug}
-              alt={t("title")}
-              fill
-              priority
-              sizes="100vw"
-              quality={90}
-              className="object-cover object-center"
-            />
-
-            <div
+            {/* The image is revealed by a curtain that drops downwards. */}
+            <motion.div
               className="absolute inset-0"
-              style={{
-                background:
-                  "linear-gradient(180deg, rgba(74,15,28,0.45) 0%, rgba(107,31,46,0.18) 38%, rgba(74,15,28,0.55) 100%)",
-              }}
-            />
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.86 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1.1, delay: 0.45 }}
-              className="pointer-events-none absolute bottom-[8%] left-[2%] z-10 sm:left-[3%]"
+              initial={
+                reduced ? { opacity: 0 } : { clipPath: "inset(0 0 100% 0)" }
+              }
+              animate={
+                reduced ? { opacity: 1 } : { clipPath: "inset(0 0 0% 0)" }
+              }
+              transition={{ duration: 1.15, ease: EASE.dramatic }}
             >
-              <GeometricOrnament className="h-24 w-24 sm:h-32 sm:w-32 lg:h-[9.5rem] lg:w-[9.5rem]" />
-            </motion.div>
-
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              className="absolute inset-0 z-20 flex flex-col items-center justify-center px-6 text-center sm:px-10"
-            >
-              <motion.h2
-                variants={itemVariants}
-                className="max-w-5xl text-4xl font-medium leading-[1.45] tracking-[0.02em] sm:text-5xl md:text-6xl lg:text-7xl"
-                style={{ color: CREAM }}
+              <motion.div
+                className="absolute inset-0"
+                style={set({ y: imgY, scale: imgScale })}
               >
-                {t("title")}
-              </motion.h2>
+                <Image
+                  src={heroRug}
+                  alt={t("title")}
+                  fill
+                  priority
+                  sizes="100vw"
+                  quality={90}
+                  className="hero-media__img object-cover object-center"
+                />
+              </motion.div>
 
-              <motion.p
-                variants={itemVariants}
-                className="mt-6 max-w-4xl text-base font-light leading-relaxed tracking-wide sm:text-lg md:text-xl"
-                style={{ color: "rgba(245, 235, 220, 0.9)" }}
-              >
-                {t("description")}
-              </motion.p>
+              {/* Legibility scrim: darker behind the text block. */}
+              <div
+                className="absolute inset-0"
+                style={{
+                  background:
+                    "linear-gradient(180deg, rgba(74,15,28,0.5) 0%, rgba(107,31,46,0.16) 34%, rgba(74,15,28,0.35) 58%, rgba(30,7,13,0.78) 100%)",
+                }}
+              />
 
               <motion.div
-                variants={itemVariants}
-                className="mt-9 flex flex-wrap items-center justify-center gap-4"
+                initial={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.86 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 1.1, delay: 0.7, ease: EASE.standard }}
+                className="pointer-events-none absolute bottom-[8%] left-[2%] z-10 sm:left-[3%]"
               >
-                <Link href="/shop" className="hero-cta hero-cta--solid">
-                  {t("shop")}
-                </Link>
-                <Link href="/contact" className="hero-cta hero-cta--ghost">
-                  {t("contact")}
-                </Link>
+                <motion.div style={set({ rotate })}>
+                  <GeometricOrnament className="h-24 w-24 sm:h-32 sm:w-32 lg:h-[9.5rem] lg:w-[9.5rem]" />
+                </motion.div>
               </motion.div>
+            </motion.div>
+          </div>
+
+          <div className="pointer-events-none absolute inset-0 z-20 flex flex-col items-center justify-center px-6 text-center sm:px-10">
+            <motion.h2
+              variants={wordParent}
+              initial="hidden"
+              animate="visible"
+              className="pointer-events-auto mb-8 max-w-5xl font-medium leading-[1.35] tracking-[0.02em]"
+
+              style={{ color: CREAM, fontSize: "clamp(3rem, 5vw, 5.5rem)" }}
+            >
+              {reduced ? t("title") : <SplitHeading text={t("title")} />}
+            </motion.h2>
+
+            <motion.p
+              initial={reduced ? { opacity: 0 } : { opacity: 0, y: 20 }}
+              animate={reduced ? { opacity: 1 } : { opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 1.0, ease: EASE.standard }}
+              className="mt-6 max-w-4xl font-light leading-relaxed tracking-wide"
+              style={{
+                color: "rgba(245, 235, 220, 0.95)",
+                textShadow: "0 2px 18px rgba(30,7,13,0.6)",
+                fontSize: "clamp(1.15rem, 1.5vw, 1.5rem)",
+                fontFamily: "var(--font-vazir)",
+              }}
+            >
+              {t("description")}
+            </motion.p>
+
+            <motion.div
+              initial={reduced ? { opacity: 0 } : { opacity: 0, y: 20 }}
+              animate={reduced ? { opacity: 1 } : { opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 1.2, ease: EASE.standard }}
+              className="pointer-events-auto mt-9 flex flex-wrap items-center justify-center gap-4"
+            >
+              <Magnetic strength={0.25}>
+                <Link href="/shop" className="hero-cta hero-cta--solid">
+                  <span>{t("shop")}</span>
+                  <ArrowRight
+                    className="hero-cta__arrow"
+                    size={18}
+                    aria-hidden
+                  />
+                </Link>
+              </Magnetic>
+              <Magnetic strength={0.25}>
+                <Link href="/contact" className="hero-cta hero-cta--ghost">
+                  <span>{t("contact")}</span>
+                  <ArrowRight
+                    className="hero-cta__arrow"
+                    size={18}
+                    aria-hidden
+                  />
+                </Link>
+              </Magnetic>
             </motion.div>
           </div>
 
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1.5, duration: 0.8 }}
+            transition={{ delay: 1.6, duration: 0.8 }}
             className="hero-scroll"
             aria-hidden="true"
           >
+            <span className="hero-scroll__mouse">
+              <span className="hero-scroll__dot" />
+            </span>
             <span className="hero-scroll__line" />
           </motion.div>
         </div>

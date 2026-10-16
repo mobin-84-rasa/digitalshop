@@ -1,21 +1,18 @@
 'use client';
 
-import { useRef, useState, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useParams } from 'next/navigation';
-import { Link, useRouter } from '@/i18n/navigation';
+import { Link } from '@/i18n/navigation';
 import Header from '@/components/Header';
+import ZoomableImage from '@/components/ZoomableImage';
+import { openCart } from '@/components/CartDrawer';
 import { useCart } from '@/lib/cart';
-import {
-  motion,
-  AnimatePresence,
-  useReducedMotion,
-  useScroll,
-  useTransform,
-} from 'framer-motion';
 import { useTranslations, useLocale } from 'next-intl';
 import { getCarpet } from '@/lib/api';
 import { formatPrice, toLocalizedDigits } from '@/lib/format';
+import { EASE } from '@/lib/motion';
 import '@/styles/rug.css';
 
 /* ============================================================
@@ -29,7 +26,6 @@ type RugDetail = {
   title: string;
   origin: string;
   description: string;
-  longDescription: string;
   price: number | string;
   width: number;
   length: number;
@@ -39,6 +35,14 @@ type RugDetail = {
   colors: string[];
   category: { id: number; name: string };
   stock_status: 'available' | 'reserved' | 'sold';
+};
+
+type FlyState = {
+  src: string;
+  from: DOMRect;
+  dx: number;
+  dy: number;
+  scale: number;
 };
 
 /* ============================================================
@@ -65,47 +69,98 @@ function RugGallery({
 
   return (
     <div className="fs-gallery">
-      <div className="fs-gallery__thumbs">
-        {images.map((img, i) => (
-          <button
-            key={img.id}
-            type="button"
-            onClick={() => setActiveIndex(i)}
-            aria-label={`${title} ${i + 1}`}
-            aria-current={i === activeIndex}
-            className={`fs-gallery__thumb ${i === activeIndex ? 'is-active' : ''}`}
-          >
-            <Image
-              src={img.image}
-              alt={title}
-              fill
-              sizes="80px"
-              className="object-cover"
-            />
-          </button>
-        ))}
-      </div>
+      {images.length > 1 && (
+        <div className="fs-gallery__thumbs">
+          {images.map((img, i) => (
+            <button
+              key={img.id}
+              type="button"
+              onClick={() => setActiveIndex(i)}
+              aria-label={`${title} ${i + 1}`}
+              aria-current={i === activeIndex}
+              className={`fs-gallery__thumb ${i === activeIndex ? 'is-active' : ''}`}
+            >
+              <Image
+                src={img.image}
+                alt={title}
+                fill
+                sizes="80px"
+                className="object-cover"
+              />
+            </button>
+          ))}
+        </div>
+      )}
 
-      <div className="fs-gallery__main">
+      <div className="fs-gallery__main" data-product-image>
         <AnimatePresence mode="wait">
           <motion.div
             key={activeIndex}
             initial={reducedMotion ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={reducedMotion ? undefined : { opacity: 0 }}
+            transition={{ duration: 0.35, ease: EASE.standard }}
             className="absolute inset-0"
           >
-            <Image
+            <ZoomableImage
               src={images[activeIndex].image}
-              alt={title}
-              fill
-              priority
-              className="object-contain"
+              alt={`${title} — ${activeIndex + 1}`}
+              sizes="(max-width: 1024px) 90vw, 45vw"
+              priority={activeIndex === 0}
             />
           </motion.div>
         </AnimatePresence>
       </div>
     </div>
+  );
+}
+
+/* ============================================================
+   Loading skeleton
+   ============================================================ */
+
+function DetailSkeleton() {
+  return (
+    <>
+      <Header />
+      <div className="mx-auto grid max-w-7xl gap-10 px-6 pb-16 pt-10 lg:grid-cols-[1.15fr_1fr] lg:gap-14 lg:px-12">
+        <div
+          className="fs-skeleton"
+          style={{ aspectRatio: '4 / 5', borderRadius: '1rem' }}
+        />
+        <div>
+          <div
+            className="fs-skeleton fs-skeleton--line"
+            style={{ width: '30%' }}
+          />
+          <div
+            className="fs-skeleton fs-skeleton--line"
+            style={{ width: '75%', height: '2.4rem' }}
+          />
+          <div
+            className="fs-skeleton fs-skeleton--line"
+            style={{ width: '100%' }}
+          />
+          <div
+            className="fs-skeleton fs-skeleton--line"
+            style={{ width: '90%' }}
+          />
+          <div
+            className="fs-skeleton fs-skeleton--line"
+            style={{ width: '60%', height: '2rem', marginTop: '2rem' }}
+          />
+          <div
+            className="fs-skeleton fs-skeleton--line"
+            style={{
+              width: '100%',
+              height: '3rem',
+              marginTop: '1.5rem',
+              borderRadius: '999px',
+            }}
+          />
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -118,18 +173,15 @@ export default function RugDetailPage() {
   const slug = params?.slug;
   const locale = useLocale();
   const t = useTranslations('Common');
-  const router = useRouter();
   const { add } = useCart();
+  const reduced = useReducedMotion();
+
   const [rug, setRug] = useState<RugDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [errored, setErrored] = useState(false);
-
-  const pageRef = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: pageRef,
-    offset: ['start start', 'end end'],
-  });
-  const progressScaleY = useTransform(scrollYProgress, [0, 1], [0, 1]);
+  const [fly, setFly] = useState<FlyState | null>(null);
+  const [added, setAdded] = useState(false);
+  const flyTimer = useRef<number | null>(null);
 
   useEffect(() => {
     if (!slug) return;
@@ -146,12 +198,14 @@ export default function RugDetailPage() {
     fetchItem();
   }, [slug, locale]);
 
-  if (loading)
-    return (
-      <div className="min-h-screen bg-olive flex items-center justify-center text-cream">
-        {t('loading')}
-      </div>
-    );
+  useEffect(
+    () => () => {
+      if (flyTimer.current) window.clearTimeout(flyTimer.current);
+    },
+    [],
+  );
+
+  if (loading) return <DetailSkeleton />;
   if (errored)
     return (
       <div className="min-h-screen bg-olive flex items-center justify-center text-cream">
@@ -182,11 +236,29 @@ export default function RugDetailPage() {
       price: Number(rug.price),
       image,
     });
-    router.push('/checkout');
+
+    const source = document.querySelector('[data-product-image]');
+    const target = document.querySelector('[data-cart-anchor]');
+    if (image && source && target && !reduced) {
+      const from = source.getBoundingClientRect();
+      const to = target.getBoundingClientRect();
+      setFly({
+        src: image,
+        from,
+        dx: to.left + to.width / 2 - (from.left + from.width / 2),
+        dy: to.top + to.height / 2 - (from.top + from.height / 2),
+        scale: Math.max(0.08, to.width / Math.max(from.width, 1)),
+      });
+      if (flyTimer.current) window.clearTimeout(flyTimer.current);
+      flyTimer.current = window.setTimeout(() => setFly(null), 850);
+    }
+    setAdded(true);
+    openCart();
+    window.setTimeout(() => setAdded(false), 900);
   };
 
   return (
-    <section ref={pageRef} className="fs-root min-h-screen overflow-clip">
+    <section className="fs-root min-h-screen overflow-clip">
       <Header />
 
       <nav className="fs-breadcrumb">
@@ -203,18 +275,27 @@ export default function RugDetailPage() {
 
       <div className="relative">
         <div className="fs-rail" aria-hidden="true" />
-        <motion.div
-          className="fs-progress"
-          aria-hidden="true"
-          style={{ scaleY: progressScaleY }}
-        />
 
         <div className="mx-auto grid max-w-7xl gap-10 px-6 pb-16 pt-8 lg:grid-cols-[1.15fr_1fr] lg:gap-14 lg:px-12">
-          <RugGallery images={rug.images} title={rug.title} />
+          <motion.div
+            initial={reduced ? false : { opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: EASE.standard }}
+          >
+            <RugGallery images={rug.images} title={rug.title} />
+          </motion.div>
 
-          <div className="fs-info">
+          <motion.div
+            className="fs-info lg:sticky lg:top-28 lg:self-start"
+            initial={reduced ? false : { opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.1, ease: EASE.standard }}
+          >
             <p className="fs-muted-gold text-sm sm:text-base">{rug.origin}</p>
-            <h1 className="fs-display mt-3 text-3xl leading-tight sm:text-5xl lg:text-6xl">
+            <h1
+              className="fs-display mt-3 text-3xl leading-tight sm:text-5xl lg:text-6xl"
+              style={{ fontSize: 'clamp(2rem, 3.5vw, 3.75rem)' }}
+            >
               {rug.title}
             </h1>
             <p className="fs-muted mt-5 text-base leading-8 sm:text-lg">
@@ -226,25 +307,43 @@ export default function RugDetailPage() {
                 {formatPrice(rug.price, locale)}
                 <span className="fs-price__unit"> {t('currency')}</span>
               </p>
+              <p className="fs-muted-gold mt-1 text-sm">{statusLabel}</p>
 
               <div className="mt-8 flex flex-wrap gap-4">
-                <button
+                <motion.button
                   type="button"
-                  className="fs-cta fs-cta--block"
+                  className="fs-cta fs-cta--block relative"
                   disabled={rug.stock_status !== 'available'}
                   onClick={handleBuy}
+                  whileTap={reduced ? undefined : { scale: 0.98 }}
+                  data-cart-add
                 >
-                  {rug.stock_status === 'available' ? t('buy') : statusLabel}
-                </button>
+                  <AnimatePresence mode="wait" initial={false}>
+                    <motion.span
+                      key={added ? 'added' : 'buy'}
+                      initial={reduced ? false : { opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={reduced ? undefined : { opacity: 0, y: -6 }}
+                      transition={{ duration: 0.2 }}
+                      className="inline-flex items-center gap-2"
+                    >
+                      {rug.stock_status !== 'available'
+                        ? statusLabel
+                        : added
+                          ? `✓ ${t('buy')}`
+                          : t('buy')}
+                    </motion.span>
+                  </AnimatePresence>
+                </motion.button>
                 <Link
                   href={`/contact?carpet=${rug.id}`}
                   className="fs-cta fs-cta--block bg-transparent border border-cream text-cream hover:bg-cream/10 text-center"
                 >
-                  {t('consult')}
+                  {t('privateViewing')}
                 </Link>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
 
         <div className="mx-auto max-w-7xl px-6 pb-20 lg:px-12">
@@ -278,6 +377,29 @@ export default function RugDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Fly-to-cart ghost: transform-only, removed after it lands. */}
+      <AnimatePresence>
+        {fly && (
+          <motion.img
+            key="fly"
+            src={fly.src}
+            alt=""
+            aria-hidden="true"
+            className="pointer-events-none fixed z-[130] rounded-xl object-cover"
+            style={{
+              left: fly.from.left,
+              top: fly.from.top,
+              width: fly.from.width,
+              height: fly.from.height,
+            }}
+            initial={{ x: 0, y: 0, scale: 1, opacity: 1 }}
+            animate={{ x: fly.dx, y: fly.dy, scale: fly.scale, opacity: 0.25 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8, ease: EASE.standard }}
+          />
+        )}
+      </AnimatePresence>
     </section>
   );
 }

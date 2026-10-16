@@ -1,0 +1,429 @@
+/* ============================================================
+   Site footer — هماهنگ با تم سایت (سبز زیتونی + طلایی)
+   ============================================================ */
+
+.site-footer {
+  position: relative;
+  background:
+    radial-gradient(
+      ellipse 120% 90% at 50% 0%,
+      rgba(47, 59, 24, 0.85) 0%,
+      transparent 68%
+    ),
+    radial-gradient(
+      ellipse 80% 60% at 50% 100%,
+      rgba(232, 214, 163, 0.05) 0%,
+      transparent 70%
+    ),
+    linear-gradient(180deg, #232c12 0%, #1a2010 60%, #141a0c 100%);
+  color: #efe6dd;
+  font-family:
+    var(--font-noto-nastaliq), var(--font-samim), var(--font-AKETAB), Georgia,
+    serif;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* خط طلایی بالای فوتر */
+.site-footer__top-border {
+  position: absolute;
+  top: 0;
+  inset-inline: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(232, 214, 163, 0.25) 20%,
+    rgba(232, 214, 163, 0.7) 50%,
+    rgba(232, 214, 163, 0.25) 80%,
+    transparent 100%
+  );
+  box-shadow: 0 0 20px rgba(232, 214, 163, 0.15);
+}
+
+/* درخشش ملایم پشت برند */
+.site-footer__brand-glow {
+  position: absolute;
+  top: -3rem;
+  inset-inline-start: -3rem;
+  width: 16rem;
+  height: 16rem;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(232, 214, 163, 0.12) 0%,
+    rgba(232, 214, 163, 0.04) 40%,
+    transparent 70%
+  );
+  filter: blur(30px);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.site-footer__inner {
+  position: relative;
+  max-width: 80rem;
+  margin-inline: auto;
+  padding: clamp(3.5rem, 8vw, 5.5rem) clamp(1.5rem, 5vw, 3rem) 0;
+}
+
+/* ============================================================
+   Grid
+   ============================================================ */
+
+.site-footer__grid {
+  display: grid;
+  grid-template-columns: 1.5fr 0.85fr 1.1fr 0.85fr;
+  gap: clamp(2rem, 4vw, 3.5rem);
+  padding-bottom: clamp(2.5rem, 5vw, 4rem);
+}
+
+/* ============================================================
+   ستون برند
+   ============================================================ */
+
+.site-footer__brand {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.site-footer__gallery-name {
+  font-family: var(--font-noto-nastaliq), var(--font-AKETAB), Georgia, serif;
+  font-size: clamp(1.7rem, 2.6vw, 2.3rem);
+  font-weight: 400;
+  color: #e8d6a3;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+  text-shadow: 0 2px 24px rgba(232, 214, 163, 0.15);
+}
+
+.site-footer__tagline {
+  font-family: var(--font-vazir, inherit);
+  font-size: 0.95rem;
+  color: rgba(239, 230, 221, 0.62);
+  line-height: 1.75;
+  max-width: 22rem;
+}
+
+.footer-ornament {
+  width: 10rem;
+  height: auto;
+  color: rgba(232, 214, 163, 0.5);
+  margin-top: 0.75rem;
+}
+
+/* ============================================================
+   سرستون‌ها
+   ============================================================ */
+
+.site-footer__heading {
+  position: relative;
+  font-family: var(--font-noto-nastaliq), var(--font-AKETAB), Georgia, serif;
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: #e8d6a3;
+  margin-bottom: 1.1rem;
+  padding-bottom: 0.55rem;
+  letter-spacing: 0.02em;
+}
+
+/* خط طلایی کوچک زیر هر سرستون */
+.site-footer__heading::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  inset-inline-start: 0;
+  width: 2.25rem;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    rgba(232, 214, 163, 0.7) 0%,
+    transparent 100%
+  );
+}
+
+[dir="rtl"] .site-footer__heading::after {
+  background: linear-gradient(
+    -90deg,
+    rgba(232, 214, 163, 0.7) 0%,
+    transparent 100%
+  );
+}
+
+/* ============================================================
+   لینک‌های ناوبری — با نقطه طلایی
+   ============================================================ */
+
+.site-footer__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.site-footer__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: rgba(239, 230, 221, 0.72);
+  text-decoration: none;
+  font-size: 0.95rem;
+  width: fit-content;
+  transition: color 0.3s var(--ease-standard, ease);
+}
+
+/* نقطه کوچک کنار هر لینک */
+.site-footer__link-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(232, 214, 163, 0.35);
+  transition:
+    background 0.3s var(--ease-standard, ease),
+    scale 0.3s var(--ease-standard, ease),
+    box-shadow 0.3s var(--ease-standard, ease);
+  flex-shrink: 0;
+}
+
+.site-footer__link:hover {
+  color: #e8d6a3;
+}
+
+.site-footer__link:hover .site-footer__link-dot {
+  background: #e8d6a3;
+  scale: 1.6;
+  box-shadow: 0 0 8px rgba(232, 214, 163, 0.6);
+}
+
+/* ============================================================
+   لیست تماس — با دایره طلایی دور آیکون
+   ============================================================ */
+
+.site-footer__contact-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.site-footer__contact-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-size: 0.9rem;
+  color: rgba(239, 230, 221, 0.72);
+  transition: color 0.3s var(--ease-standard, ease);
+}
+
+.site-footer__contact-list li:hover {
+  color: rgba(239, 230, 221, 0.95);
+}
+
+.site-footer__contact-icon-wrap {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: 1px solid rgba(232, 214, 163, 0.22);
+  background: rgba(232, 214, 163, 0.04);
+  flex-shrink: 0;
+  transition:
+    border-color 0.3s var(--ease-standard, ease),
+    background 0.3s var(--ease-standard, ease);
+}
+
+.site-footer__contact-list li:hover .site-footer__contact-icon-wrap {
+  border-color: rgba(232, 214, 163, 0.5);
+  background: rgba(232, 214, 163, 0.08);
+}
+
+.site-footer__contact-icon {
+  color: rgba(232, 214, 163, 0.75);
+}
+
+/* ============================================================
+   شبکه‌های اجتماعی
+   ============================================================ */
+
+.site-footer__socials {
+  display: flex;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+}
+
+.site-footer__social-link {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid rgba(232, 214, 163, 0.25);
+  border-radius: 50%;
+  color: rgba(239, 230, 221, 0.75);
+  text-decoration: none;
+  overflow: hidden;
+  isolation: isolate;
+  transition:
+    color 0.35s var(--ease-standard, ease),
+    border-color 0.35s var(--ease-standard, ease),
+    translate 0.35s var(--ease-standard, ease);
+}
+
+/* پس‌زمینه طلایی که از پایین می‌آید */
+.site-footer__social-link::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: 50%;
+  background: #e8d6a3;
+  transform: scale(0);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.site-footer__social-link:hover {
+  color: #232c12;
+  border-color: #e8d6a3;
+  translate: 0 -3px;
+  box-shadow: 0 8px 24px -8px rgba(232, 214, 163, 0.6);
+}
+
+.site-footer__social-link:hover::before {
+  transform: scale(1);
+}
+
+/* ============================================================
+   نوار پایین
+   ============================================================ */
+
+.site-footer__bottom {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-top: 1px solid rgba(232, 214, 163, 0.12);
+  padding: 1.5rem 0 1.75rem;
+}
+
+.site-footer__copyright {
+  font-size: 0.8rem;
+  color: rgba(239, 230, 221, 0.45);
+  letter-spacing: 0.03em;
+  margin: 0;
+}
+
+/* دکمه بازگشت به بالا */
+.site-footer__top-btn {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: 1px solid rgba(232, 214, 163, 0.3);
+  background: transparent;
+  color: rgba(232, 214, 163, 0.8);
+  cursor: pointer;
+  transition:
+    background 0.3s var(--ease-standard, ease),
+    color 0.3s var(--ease-standard, ease),
+    border-color 0.3s var(--ease-standard, ease),
+    translate 0.3s var(--ease-standard, ease);
+}
+
+.site-footer__top-btn:hover {
+  background: #e8d6a3;
+  color: #232c12;
+  border-color: #e8d6a3;
+  translate: 0 -2px;
+}
+
+/* ============================================================
+   ریسپانسیو
+   ============================================================ */
+
+/* تبلت */
+@media (max-width: 1024px) {
+  .site-footer__grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem 2rem;
+  }
+
+  .site-footer__brand {
+    grid-column: 1 / -1;
+    text-align: center;
+    align-items: center;
+  }
+
+  .site-footer__tagline {
+    max-width: 32rem;
+  }
+
+  .footer-ornament {
+    margin-inline: auto;
+  }
+}
+
+/* موبایل */
+@media (max-width: 640px) {
+  .site-footer__grid {
+    grid-template-columns: 1fr;
+    gap: 2.25rem;
+    text-align: center;
+  }
+
+  .site-footer__brand,
+  .site-footer__col {
+    align-items: center;
+  }
+
+  .site-footer__tagline {
+    max-width: 100%;
+  }
+
+  .site-footer__nav {
+    align-items: center;
+  }
+
+  .site-footer__link {
+    justify-content: center;
+  }
+
+  .site-footer__contact-list li {
+    justify-content: center;
+  }
+
+  .site-footer__socials {
+    justify-content: center;
+  }
+
+  .site-footer__heading::after {
+    inset-inline-start: 50%;
+    translate: -50% 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(232, 214, 163, 0.7) 50%,
+      transparent 100%
+    );
+  }
+
+  .site-footer__bottom {
+    flex-direction: column-reverse;
+    text-align: center;
+  }
+}
+
+/* کاهش انیمیشن */
+@media (prefers-reduced-motion: reduce) {
+  .site-footer__link,
+  .site-footer__social-link,
+  .site-footer__top-btn,
+  .site-footer__contact-icon-wrap {
+    transition: none;
+  }
+}

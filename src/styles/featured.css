@@ -24,43 +24,55 @@
       var(--fs-background-deep) 100%
     );
   color: var(--fs-primary);
-  font-family: var(--font-AKETAB), var(--font-cinzel), Georgia, serif;
-  font-size: clamp(1.05rem, 1rem + 0.4vw, 1.4rem);
+  font-family:
+    var(--font-noto-nastaliq), var(--font-samim), var(--font-AKETAB), Georgia,
+    serif;
+  font-size: clamp(1.15rem, 1.05rem + 0.5vw, 1.5rem);
   line-height: 1.6;
+  scrollbar-width: none;
 }
-
 .fs-display {
-  font-family: var(--font-AKETAB), var(--font-cinzel), Georgia, serif;
+  font-family:
+    var(--font-noto-nastaliq), var(--font-samim), var(--font-AKETAB), Georgia,
+    serif;
   letter-spacing: 0.02em;
   color: var(--fs-primary);
 }
 
 .fs-muted {
   color: var(--fs-muted-foreground);
+  font-family:
+    var(--font-noto-nastaliq), var(--font-samim), var(--font-AKETAB), Georgia,
+    serif;
 }
 
 .fs-muted-gold {
   color: var(--fs-muted-gold);
+  font-size: 2rem; /* اضافه کن */
 }
 
 .fs-intro {
-  background-image:
-    linear-gradient(var(--fs-border), var(--fs-border)),
-    linear-gradient(
-      90deg,
-      transparent 49.8%,
-      var(--fs-border) 50%,
-      transparent 50.2%
-    );
-  background-position:
-    center bottom,
-    center;
+  background-image: linear-gradient(
+    90deg,
+    transparent 49.8%,
+    var(--fs-border) 50%,
+    transparent 50.2%
+  );
+  background-position: center;
   background-repeat: no-repeat;
-  background-size:
-    min(72vw, 34rem) 1px,
-    100% 34%;
+  background-size: 100% 34%;
+}
+@font-face {
+  font-family: "Vazir";
+  src: url("/fonts/Vazir.ttf") format("truetype");
+  font-weight: 100 900;
+  font-display: swap;
 }
 
+.fs-meta,
+.fs-muted-gold {
+  font-family: "Vazir", system-ui, sans-serif;
+}
 .fs-mark {
   display: grid;
   width: 2.75rem;
@@ -115,20 +127,21 @@
   position: absolute;
   z-index: 0;
   left: 50%;
-  top: 55%;
-  width: 260%;
-  height: 65svh;
+  /* Align with the bottom of the lamp shade (~62% of the SVG viewBox height). */
+  top: 62%;
+  width: 220%;
+  height: 70svh;
   transform: translateX(-50%);
   pointer-events: none;
   background: radial-gradient(
-    ellipse 42% 58% at 50% 0%,
-    rgba(232, 214, 163, 0.55) 0%,
-    rgba(232, 214, 163, 0.38) 18%,
-    rgba(147, 23, 158, 0.22) 38%,
-    rgba(232, 214, 163, 0.1) 58%,
-    transparent 82%
+    ellipse 38% 55% at 50% 0%,
+    rgba(232, 214, 163, 0.6) 0%,
+    rgba(232, 214, 163, 0.35) 20%,
+    rgba(232, 200, 150, 0.15) 45%,
+    rgba(232, 214, 163, 0.05) 65%,
+    transparent 85%
   );
-  filter: blur(2rem);
+  filter: blur(2.5rem);
   mix-blend-mode: screen;
   opacity: 0;
   will-change: opacity;
@@ -136,21 +149,22 @@
 
 .fs-cone {
   position: absolute;
-  top: 10svh;
+  /* Start from the lamp shade bottom (~8svh from top of sticky container). */
+  top: 8svh;
   left: 50%;
   z-index: 0;
-  width: min(125%, 82rem);
+  width: min(120%, 78rem);
   height: 88svh;
   translate: -50% 0;
   transform-origin: 50% 0;
   pointer-events: none;
-  clip-path: polygon(43% 0%, 57% 0%, 94% 100%, 6% 100%);
+  clip-path: polygon(44% 0%, 56% 0%, 92% 100%, 8% 100%);
   background: linear-gradient(
     to bottom,
-    rgba(182, 163, 232, 0.22) 0%,
-    rgba(232, 214, 163, 0.14) 30%,
-    rgba(232, 214, 163, 0.06) 62%,
-    transparent 96%
+    rgba(232, 214, 163, 0.18) 0%,
+    rgba(232, 214, 163, 0.12) 28%,
+    rgba(232, 214, 163, 0.05) 60%,
+    transparent 92%
   );
   filter: blur(2.4rem);
   opacity: 0;
@@ -218,33 +232,39 @@
 
 .fs-lamp__light {
   fill: var(--fs-lamp-lit);
-  filter: blur(0.55rem) drop-shadow(0 0.3rem 1.6rem rgba(232, 214, 163, 0.55));
+  filter: blur(0.4rem) drop-shadow(0 0.5rem 2rem rgba(232, 214, 163, 0.6));
   opacity: 0;
 }
 
 .fs-artwork {
-  position: relative;
-  height: min(53svh, 39rem);
+  height: min(40svh, 33rem);
   width: auto;
   aspect-ratio: 1024 / 1408;
   filter: drop-shadow(var(--fs-art-shadow));
+}
+
+@media (max-width: 640px) {
+  .fs-artwork {
+    height: min(38svh, 25rem);
+    max-width: 84vw;
+  }
 }
 
 .fs-artwork__ground {
   position: absolute;
   left: 50%;
   bottom: -12%;
-  width: 145%;
-  height: 38%;
+  width: 140%;
+  height: 40%;
   translate: -50% 0;
   pointer-events: none;
   opacity: 0;
   transform-origin: 50% 50%;
   background: radial-gradient(
-    ellipse 55% 50% at 50% 50%,
-    rgba(232, 214, 163, 0.42) 0%,
-    rgba(232, 214, 163, 0.2) 38%,
-    rgba(232, 214, 163, 0.08) 62%,
+    ellipse 50% 55% at 50% 30%,
+    rgba(232, 214, 163, 0.45) 0%,
+    rgba(232, 214, 163, 0.22) 35%,
+    rgba(232, 214, 163, 0.08) 60%,
     transparent 82%
   );
   filter: blur(2rem);
@@ -258,47 +278,79 @@
   pointer-events: none;
   opacity: 0;
   background: radial-gradient(
-    ellipse 78% 62% at 50% 28%,
-    rgba(232, 214, 163, 0.3) 0%,
-    rgba(232, 214, 163, 0.14) 45%,
-    rgba(232, 214, 163, 0.05) 65%,
-    transparent 82%
+    ellipse 70% 55% at 50% 25%,
+    rgba(232, 214, 163, 0.32) 0%,
+    rgba(232, 214, 163, 0.15) 40%,
+    rgba(232, 214, 163, 0.04) 62%,
+    transparent 80%
   );
-  filter: blur(0.6rem);
+  filter: blur(0.5rem);
   mix-blend-mode: soft-light;
   will-change: opacity;
 }
 
 .fs-cta {
+  --sweep-origin: left;
+  position: relative;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.95rem 2.4rem;
-  font-family: inherit;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--fs-background-deep);
-  background: var(--fs-gold);
-  border: 1px solid var(--fs-gold);
+  gap: 0.55rem;
+  padding: 1.05rem 2.4rem;
   border-radius: 999px;
+  font-family:
+    var(--font-noto-nastaliq), var(--font-samim), var(--font-AKETAB), Georgia,
+    serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
   text-decoration: none;
+  overflow: hidden;
+  isolation: isolate;
   cursor: pointer;
-  box-shadow: 0 6px 22px -8px rgba(232, 214, 163, 0.75);
+  border: 1px solid rgba(245, 235, 220, 0.6);
+  color: #f5ebdc;
+  background: transparent;
   transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease,
-    background 0.3s ease;
+    translate var(--dur-fast) var(--ease-standard),
+    color var(--dur-base) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-standard);
+}
+
+.fs-cta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  transform: scaleX(0);
+  transform-origin: var(--sweep-origin);
+  background: #f5ebdc;
+  transition: transform var(--dur-base) var(--ease-standard);
 }
 
 .fs-cta:hover {
-  transform: translateY(-2px);
-  background: #f0e3bc;
-  box-shadow: 0 1rem 2.2rem -1rem rgba(232, 214, 163, 0.85);
+  translate: 0 -2px;
+  color: #4a0f1c;
+}
+
+.fs-cta:hover::before {
+  transform: scaleX(1);
 }
 
 .fs-cta:active {
-  transform: translateY(0);
+  transform: scale(0.98);
+  translate: 0;
+}
+
+[dir="rtl"] .fs-cta {
+  --sweep-origin: right;
+}
+
+[dir="rtl"] .fs-cta__arrow {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .fs-cta:hover .fs-cta__arrow {
+  translate: -4px 0;
 }
 
 @keyframes fs-scroll {
@@ -331,7 +383,7 @@
   }
 
   .fs-lamp__light {
-    filter: blur(0.4rem) drop-shadow(0 0.25rem 1.2rem rgba(232, 214, 163, 0.5));
+    filter: blur(0.3rem) drop-shadow(0 0.4rem 1.4rem rgba(232, 214, 163, 0.55));
   }
 
   .fs-rail {
@@ -347,4 +399,148 @@
   .fs-progress {
     transition: none;
   }
+}
+
+/* ------------------------- Gallery: elevated pieces --------------------- */
+
+.fs-tilt {
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.fs-tint {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  mix-blend-mode: soft-light;
+  will-change: opacity;
+}
+
+.fs-specular {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  mix-blend-mode: soft-light;
+  transition: opacity 0.35s var(--ease-standard);
+}
+
+.fs-lamp__drop-wrap {
+  transform-box: fill-box;
+  transform-origin: 50% 0%;
+  animation: fs-tassel 5s var(--ease-soft) infinite;
+}
+
+@keyframes fs-tassel {
+  0%,
+  100% {
+    rotate: -2deg;
+  }
+  50% {
+    rotate: 2deg;
+  }
+}
+
+.fs-meta {
+  margin-top: 3rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  font-size: 1.3rem;
+  letter-spacing: 0.06em;
+  color: var(--fs-muted-gold);
+}
+
+.fs-meta__dot {
+  opacity: 0.6;
+}
+
+.fs-view-cta {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 40px;
+  gap: 0.45rem;
+  padding: 0.65rem 1.6rem;
+  border: 1px solid var(--fs-border);
+  border-radius: 999px;
+  color: var(--fs-primary);
+  font-size: 1.05rem;
+  text-decoration: none;
+  transition:
+    background 0.3s var(--ease-standard),
+    border-color 0.3s var(--ease-standard),
+    color 0.3s var(--ease-standard),
+    translate 0.3s var(--ease-standard);
+}
+
+.fs-view-cta:hover {
+  background: var(--fs-gold);
+  border-color: var(--fs-gold);
+  color: var(--fs-background-deep);
+  translate: 0 -2px;
+}
+
+.fs-view-cta__arrow {
+  transition: translate 0.3s var(--ease-standard);
+}
+
+.fs-view-cta:hover .fs-view-cta__arrow {
+  translate: 3px -3px;
+}
+
+[dir="rtl"] .fs-view-cta__arrow {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .fs-view-cta:hover .fs-view-cta__arrow {
+  translate: -3px -3px;
+}
+
+/* Side index (01 / 02 / 03 …) */
+
+.fs-index {
+  position: fixed;
+  inset-block-start: 50%;
+  inset-inline-end: clamp(0.75rem, 2vw, 1.75rem);
+  translate: 0 -50%;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.fs-index__item {
+  position: relative;
+  padding: 0.35rem 0.65rem;
+  border: none;
+  background: none;
+  color: var(--fs-muted-gold);
+  font-size: 0.9rem;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  opacity: 0.55;
+  transition:
+    opacity 0.3s var(--ease-standard),
+    color 0.3s var(--ease-standard);
+}
+
+.fs-index__item.is-active {
+  color: var(--fs-background-deep);
+  opacity: 1;
+}
+
+.fs-index__pill {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: 999px;
+  background: var(--fs-gold);
+}
+
+.fs-index__num {
+  position: relative;
+  z-index: 1;
 }

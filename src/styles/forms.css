@@ -1,0 +1,75 @@
+/* Floating-label form controls with an animated focus ring. */
+
+.float-field {
+  position: relative;
+}
+
+.float-field__input {
+  width: 100%;
+  padding: 1.35rem 0.95rem 0.55rem;
+  border-radius: 0.6rem;
+  border: 1px solid var(--pub-border, rgba(232, 214, 163, 0.32));
+  background: rgba(12, 10, 8, 0.35);
+  color: inherit;
+  font: inherit;
+  transition:
+    border-color 0.3s var(--ease-standard),
+    box-shadow 0.3s var(--ease-standard);
+}
+
+.float-field__input:focus {
+  outline: none;
+  border-color: var(--pub-gold, #e8d6a3);
+}
+
+.float-field.is-focused .float-field__input {
+  box-shadow: 0 0 0 3px rgba(232, 214, 163, 0.22);
+}
+
+textarea.float-field__input {
+  min-height: 8rem;
+  resize: vertical;
+}
+
+.float-field__label {
+  position: absolute;
+  inset-inline-start: 0.95rem;
+  top: 50%;
+  translate: 0 -50%;
+  scale: 1;
+  transform-origin: left center;
+  pointer-events: none;
+  color: rgba(239, 230, 221, 0.6);
+  transition:
+    translate 0.25s var(--ease-standard),
+    scale 0.25s var(--ease-standard),
+    color 0.25s var(--ease-standard);
+}
+
+[dir="rtl"] .float-field__label {
+  transform-origin: right center;
+}
+
+.float-field.is-float .float-field__label {
+  translate: 0 -1.35rem;
+  scale: 0.82;
+  color: var(--pub-gold, #e8d6a3);
+}
+
+/* Success checkmark */
+
+.success-check {
+  width: 3.5rem;
+  height: 3.5rem;
+  margin-inline: auto;
+  color: var(--pub-gold, #e8d6a3);
+}
+
+.success-check circle,
+.success-check path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}

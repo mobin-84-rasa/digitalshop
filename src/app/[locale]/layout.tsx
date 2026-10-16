@@ -9,32 +9,22 @@ import { CartProvider } from '@/lib/cart';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
+import SmoothScroll from '@/components/SmoothScroll';
+import ScrollProgress from '@/components/ScrollProgress';
+import Cursor from '@/components/Cursor';
+import Preloader from '@/components/Preloader';
+import CartDrawer from '@/components/CartDrawer';
 import '../globals.css';
 
-const nastaliq = localFont({
-  src: '../../../public/fonts/IranNastaliq.ttf',
-  variable: '--font-nastaliq',
-  display: 'swap',
-  weight: '400',
-});
-const shekasteh = localFont({
-  src: '../../../public/fonts/Shekasteh.ttf',
-  variable: '--font-shekasteh',
-  display: 'swap',
-  weight: '400',
-});
-const Regular = localFont({
-  src: '../../../public/fonts/Regular.ttf',
-  variable: '--font-Regular',
-  display: 'swap',
-  weight: '400',
-});
-const Dima = localFont({
-  src: '../../../public/fonts/Dima.ttf',
-  variable: '--font-Dima',
-  display: 'swap',
-  weight: '400',
-});
+/*
+ * Only the four families the interface actually renders are shipped now:
+ *  - AKETAB  → body/display for fa + ar (Persian/Arabic)
+ *  - Media   → header wordmark
+ *  - cinzel  → Latin display accents
+ *  - cormorant (--font-display) → Latin headings
+ * The other six Persian faces were loaded on every request but referenced
+ * nowhere; dropping them cuts the font payload substantially.
+ */
 const AKETAB = localFont({
   src: '../../../public/fonts/AKetabBold.ttf',
   variable: '--font-AKETAB',
@@ -44,24 +34,6 @@ const AKETAB = localFont({
 const Media = localFont({
   src: '../../../public/fonts/KOMedia.otf',
   variable: '--font-Media',
-  display: 'swap',
-  weight: '400',
-});
-const Maktab = localFont({
-  src: '../../../public/fonts/Maktab.ttf',
-  variable: '--font-Maktab',
-  display: 'swap',
-  weight: '400',
-});
-const Muharam = localFont({
-  src: '../../../public/fonts/Muharam.ttf',
-  variable: '--font-Muharam',
-  display: 'swap',
-  weight: '400',
-});
-const Miremad = localFont({
-  src: '../../../public/fonts/Miremad.ttf',
-  variable: '--font-Miremad',
   display: 'swap',
   weight: '400',
 });
@@ -117,6 +89,36 @@ const cinzel = localFont({
   variable: '--font-cinzel',
   display: 'swap',
 });
+const nastaliq = localFont({
+  src: '../../../public/fonts/IranNastaliq.ttf',
+  variable: '--font-nastaliq',
+  display: 'swap',
+  weight: '400',
+});
+const byekan = localFont({
+  src: '../../../public/fonts/BYekan+.ttf',
+  variable: '--font-byekan',
+  display: 'swap',
+  weight: '400',
+});
+const samim = localFont({
+  src: '../../../public/fonts/Samim.ttf',
+  variable: '--font-samim',
+  display: 'swap',
+  weight: '400',
+});
+const notoNastaliq = localFont({
+  src: '../../../public/fonts/NotoNastaliqUrdu-SemiBold.ttf',
+  variable: '--font-noto-nastaliq',
+  display: 'swap',
+  weight: '600',
+});
+const vazir = localFont({
+  src: '../../../public/fonts/Vazir.ttf',
+  variable: '--font-vazir',
+  display: 'swap',
+  weight: '400',
+});
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
@@ -156,11 +158,18 @@ export default async function LocaleLayout({
     <html
       lang={locale}
       dir={dir}
-      className={`${nastaliq.variable} ${Media.variable} ${shekasteh.variable} ${Regular.variable} ${Dima.variable} ${Miremad.variable} ${Muharam.variable} ${cormorant.variable} ${cinzel.variable} ${AKETAB.variable} ${Maktab.variable}`}
+      className={`${cormorant.variable} ${cinzel.variable} ${AKETAB.variable} ${Media.variable} ${nastaliq.variable} ${byekan.variable} ${samim.variable} ${notoNastaliq.variable} ${vazir.variable}`}
     >
       <body>
         <NextIntlClientProvider messages={messages} locale={locale}>
-          <CartProvider>{children}</CartProvider>
+          <CartProvider>
+            <SmoothScroll />
+            <ScrollProgress />
+            <Preloader />
+            <Cursor />
+            <CartDrawer />
+            {children}
+          </CartProvider>
         </NextIntlClientProvider>
       </body>
     </html>

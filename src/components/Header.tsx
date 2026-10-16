@@ -1,23 +1,63 @@
 "use client";
 
-import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Menu, Search, X, Globe } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { Globe, Menu, Search, ShoppingBag, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
+import { getDir } from "@/i18n/config";
+import Magnetic from "@/components/Magnetic";
+import { openCart } from "@/components/CartDrawer";
+import { useCart } from "@/lib/cart";
+import { requestScrollRestore } from "@/lib/smooth-scroll";
+import { DURATION, EASE, SPRING, STAGGER } from "@/lib/motion";
+import "@/styles/chrome.css";
 
-const CREAM = "#F5EBDC";
-const CREAM_SOFT = "#F5EBDC";
+// The command palette is interaction-triggered and heavy, so it is loaded on
+// demand rather than shipped in the first bundle.
+const SearchOverlay = dynamic(() => import("@/components/SearchOverlay"), {
+  ssr: false,
+});
+
 const BURGUNDY = "#6B1F2E";
-const BURGUNDY_DEEP = "#4A0F1C";
+
+const LANGUAGES = [
+  { code: "ar", name: "العربية" },
+  { code: "fa", name: "فارسی" },
+  { code: "en", name: "English" },
+] as const;
+
+const menuList = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: STAGGER.base, delayChildren: 0.12 },
+  },
+};
+
+const menuItem = {
+  hidden: { y: "110%" },
+  visible: {
+    y: "0%",
+    transition: { duration: DURATION.reveal, ease: EASE.standard },
+  },
+};
 
 export default function Header(): React.JSX.Element {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [hidden, setHidden] = useState(false);
+  const [stuck, setStuck] = useState(false);
+  const lastY = useRef(0);
+  const reduced = useReducedMotion();
+
   const locale = useLocale();
   const t = useTranslations("Common");
   const pathname = usePathname();
   const router = useRouter();
+  const { count } = useCart();
+  const dir = getDir(locale);
 
   const navItems = [
     { href: "/", label: t("home") },
@@ -25,165 +65,267 @@ export default function Header(): React.JSX.Element {
     { href: "/contact", label: t("contact") },
   ];
 
-  const languages = [
-    { code: "ar", name: "العربية" },
-    { code: "fa", name: "فارسی" },
-    { code: "en", name: "English" },
-  ];
-
+  // Header is only visible near the top of the page. Once the user scrolls
+  // past the threshold it hides and stays hidden until they return to the top.
+  useEffect(() => {
+    if (menuOpen || searchOpen) {
+      setHidden(false);
+      return;
+    }
+    const onScroll = () => {
+      const y = window.scrollY;
+      setStuck(y > 12);
+      setHidden(y > 20);
+      lastY.current = y;
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [menuOpen, searchOpen]);
   const handleLanguageChange = (newLocale: string) => {
-    const query = typeof window !== "undefined" ? window.location.search : "";
+    if (newLocale === locale) {
+      setMenuOpen(false);
+      return;
+    }
+    // Carry the reading position across the locale remount.
+    requestScrollRestore(window.scrollY);
+    const query = window.location.search;
     router.replace(`${pathname}${query}`, {
       locale: newLocale as "ar" | "fa" | "en",
     });
+    setMenuOpen(false);
   };
 
-  const linkStyle = { color: BURGUNDY };
-  const linkHover = { color: BURGUNDY_DEEP };
+  const underlineStyle = {
+    color: BURGUNDY,
+    ["--underline-origin" as string]: dir === "rtl" ? "right" : "left",
+  } as React.CSSProperties;
 
   return (
-    <header
-      className="relative z-40 w-full text-[#6B1F2E]"
-      style={{
-        background: `linear-gradient(180deg, ${CREAM} 0%, ${CREAM_SOFT} 100%)`,
-        fontFamily: "var(--font-Media), var(--font-cinzel), Georgia, serif",
-      }}
-    >
-      <motion.div
-        initial={{ opacity: 0, y: -16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="relative mx-auto flex w-full max-w-[1440px] items-center justify-between px-5 py-5 sm:px-8 lg:px-12"
+    <>
+      <motion.header
+        className={`site-header${stuck ? " is-stuck" : ""}`}
+        animate={{ y: hidden ? "-110%" : "0%" }}
+        transition={reduced ? { duration: 0 } : SPRING.snappy}
       >
-        <button
-          type="button"
-          className="p-1 lg:hidden text-[#6B1F2E]"
-          aria-label={menuOpen ? t("closeMenu") : t("openMenu")}
-          onClick={() => setMenuOpen((v) => !v)}
-        >
-          {menuOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
-
-        {/* Desktop Nav */}
-        <nav className="hidden flex-1 items-center gap-8 lg:flex">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="text-xl font-medium uppercase tracking-[0.1em] transition-colors"
-              style={linkStyle}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.color = linkHover.color)
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.color = linkStyle.color)
-              }
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-
-        {/* Logo */}
-        <Link href="/" className="flex items-center justify-center">
-          <Image
-            src="/assets/toplpgo.png"
-            alt={t("logoAlt")}
-            width={180}
-            height={80}
-            priority
-            className="h-auto w-[140px] sm:w-[180px]"
-          />
-        </Link>
-
-        {/* Language & Tools */}
-        <div className="hidden flex-1 items-center justify-end gap-6 lg:flex">
-          <div className="flex items-center gap-3 border-r border-burgundy/20 pr-6 mr-6">
-            <Globe size={16} aria-hidden />
-            {languages.map((lang) => (
-              <button
-                key={lang.code}
-                type="button"
-                onClick={() => handleLanguageChange(lang.code)}
-                className={`text-sm font-semibold transition-colors ${locale === lang.code ? "underline underline-offset-4" : "opacity-60 hover:opacity-100"}`}
-                style={linkStyle}
-              >
-                {lang.name}
-              </button>
-            ))}
-          </div>
-
+        <div className="site-header__row">
+          {/* Mobile: menu toggle */}
           <button
             type="button"
-            className="p-1 transition-colors"
-            style={{ color: BURGUNDY }}
-            aria-label={t("search")}
-            onClick={() => router.push("/search")}
-            onMouseEnter={(e) => (e.currentTarget.style.color = BURGUNDY_DEEP)}
-            onMouseLeave={(e) => (e.currentTarget.style.color = BURGUNDY)}
+            className="icon-btn menu-toggle-btn"
+            aria-label={menuOpen ? t("closeMenu") : t("openMenu")}
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((v) => !v)}
           >
-            <Search size={18} strokeWidth={1.6} />
+            <Menu size={20} />
           </button>
-        </div>
 
-        <button
-          type="button"
-          className="p-1 lg:hidden"
-          style={{ color: BURGUNDY }}
-          aria-label={t("search")}
-          onClick={() => router.push("/search")}
-        >
-          <Search size={18} strokeWidth={1.6} />
-        </button>
-      </motion.div>
+          {/* Desktop nav */}
+          <nav className="hidden flex-1 items-center gap-17 lg:flex text-[40px]">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="nav-link"
+                style={underlineStyle}
+                aria-current={pathname === item.href ? "page" : undefined}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
 
-      {/* Mobile Menu */}
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.nav
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="overflow-hidden lg:hidden"
-            style={{
-              background: `linear-gradient(180deg, ${CREAM} 0%, ${CREAM_SOFT} 100%)`,
-              borderTop: `1px solid rgba(107, 31, 46, 0.18)`,
-              borderBottom: `1px solid rgba(107, 31, 46, 0.18)`,
-            }}
+          {/* Logo */}
+          <Magnetic
+            className="flex items-center justify-center"
+            strength={0.22}
           >
+            <Link href="/" aria-label={t("logoAlt")}>
+              <Image
+                src="/assets/toplpgo.png"
+                alt={t("logoAlt")}
+                width={260}
+                height={116}
+                priority
+                className="site-logo"
+              />
+            </Link>
+          </Magnetic>
+
+          {/* Desktop tools */}
+          <div className="hidden flex-1 items-center justify-end gap-6 lg:flex">
             <div
-              className="flex flex-col gap-4 px-6 py-5 text-center text-base uppercase"
-              style={{ color: BURGUNDY }}
+              className="flex items-center gap-9"
+              style={{
+                borderInlineEnd: "1px solid rgba(107,31,46,0.2)",
+                paddingInlineEnd: "1.5rem",
+              }}
             >
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setMenuOpen(false)}
-                  className="transition-colors"
+              {LANGUAGES.map((lang) => (
+                <button
+                  key={lang.code}
+                  type="button"
+                  onClick={() => handleLanguageChange(lang.code)}
+                  className="relative  text-[26px]  font-semibold"
+                  style={{ color: locale === lang.code ? BURGUNDY : BURGUNDY }}
                 >
-                  {item.label}
-                </Link>
-              ))}
-              <div className="flex justify-center gap-4 pt-4 border-t border-burgundy/10">
-                {languages.map((lang) => (
-                  <button
-                    key={lang.code}
-                    type="button"
-                    onClick={() => {
-                      handleLanguageChange(lang.code);
-                      setMenuOpen(false);
-                    }}
-                    className={`text-sm font-semibold ${locale === lang.code ? "underline" : "opacity-60"}`}
+                  {locale === lang.code && (
+                    <motion.span
+                      layoutId="lang-pill"
+                      className="absolute -inset-x-2 -inset-y-1 -z-10 rounded-full"
+                      style={{ background: "rgba(107,31,46,0.12)" }}
+                      transition={SPRING.snappy}
+                    />
+                  )}
+                  <span
+                    className={
+                      locale === lang.code ? "opacity-100" : "opacity-60"
+                    }
                   >
                     {lang.name}
-                  </button>
-                ))}
-              </div>
+                  </span>
+                </button>
+              ))}
             </div>
-          </motion.nav>
+
+            <Magnetic strength={0.35}>
+              <button
+                type="button"
+                className="icon-btn"
+                style={{ color: BURGUNDY }}
+                aria-label={t("search")}
+                onClick={() => setSearchOpen(true)}
+              >
+                <Search size={18} strokeWidth={1.6} />
+              </button>
+            </Magnetic>
+
+            <Magnetic strength={0.35}>
+              <button
+                type="button"
+                className="icon-btn relative"
+                style={{ color: BURGUNDY }}
+                aria-label={t("cart")}
+                data-cart-anchor
+                onClick={openCart}
+              >
+                <ShoppingBag size={18} strokeWidth={1.6} />
+                <AnimatePresence>
+                  {count > 0 && (
+                    <motion.span
+                      key={count}
+                      className="cart-badge"
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0, opacity: 0 }}
+                      transition={SPRING.pop}
+                    >
+                      {count}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </button>
+            </Magnetic>
+          </div>
+
+          {/* Mobile tools */}
+          <div className="flex items-center gap-1 lg:hidden">
+            <button
+              type="button"
+              className="icon-btn"
+              style={{ color: BURGUNDY }}
+              aria-label={t("search")}
+              onClick={() => setSearchOpen(true)}
+            >
+              <Search size={18} strokeWidth={1.6} />
+            </button>
+            <button
+              type="button"
+              className="icon-btn relative"
+              style={{ color: BURGUNDY }}
+              aria-label={t("cart")}
+              data-cart-anchor
+              onClick={openCart}
+            >
+              <ShoppingBag size={18} strokeWidth={1.6} />
+              {count > 0 && <span className="cart-badge">{count}</span>}
+            </button>
+          </div>
+        </div>
+      </motion.header>
+
+      {/* Full-screen mobile menu */}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            className="mobile-menu lg:hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: DURATION.fast, ease: EASE.standard }}
+          >
+            <div className="mobile-menu__top">
+              <Image
+                src="/assets/toplpgo.png"
+                alt={t("logoAlt")}
+                width={260}
+                height={146}
+                priority
+                className="site-logo"
+              />
+              <button
+                type="button"
+                className="icon-btn"
+                style={{ color: "inherit" }}
+                aria-label={t("closeMenu")}
+                onClick={() => setMenuOpen(false)}
+              >
+                <X size={22} />
+              </button>
+            </div>
+
+            <motion.nav
+              className="mobile-menu__links"
+              variants={menuList}
+              initial="hidden"
+              animate="visible"
+            >
+              {navItems.map((item) => (
+                <span key={item.href} className="overflow-hidden py-1">
+                  <motion.span variants={menuItem} className="block">
+                    <Link
+                      href={item.href}
+                      className="mobile-menu__link"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      {item.label}
+                    </Link>
+                  </motion.span>
+                </span>
+              ))}
+            </motion.nav>
+
+            <div className="mobile-menu__langs">
+              {LANGUAGES.map((lang) => (
+                <button
+                  key={lang.code}
+                  type="button"
+                  onClick={() => handleLanguageChange(lang.code)}
+                  className="text-sm font-semibold"
+                  style={{
+                    color: "inherit",
+                    opacity: locale === lang.code ? 1 : 0.55,
+                  }}
+                >
+                  {lang.name}
+                </button>
+              ))}
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
-    </header>
+
+      <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
+    </>
   );
 }

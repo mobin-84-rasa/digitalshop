@@ -4,6 +4,21 @@
   --ink: #0c0a08;
   --background: #0c0a08;
   --foreground: #f2e8d5;
+
+  /* Brand anchors, reused by the motion system and the section blends. */
+  --cream: #f5ebdc;
+  --burgundy: #6b1f2e;
+  --burgundy-deep: #4a0f1c;
+  --olive: #2f3b18;
+  --olive-deep: #232c12;
+  --gold: #e8d6a3;
+
+  /* Motion tokens mirrored from src/lib/motion.ts for CSS-only surfaces. */
+  --ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-fast: 240ms;
+  --dur-base: 450ms;
+  --dur-slow: 800ms;
 }
 
 @theme {
@@ -23,13 +38,10 @@ html {
   font-size: 18px;
   background: var(--ink);
   overflow-x: clip;
-  scroll-behavior: smooth;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
+  /* Lenis drives smooth scroll; native smoothing would fight it (and Next 16
+     no longer overrides this on navigation, so we set it explicitly). */
+  scroll-behavior: auto;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -37,10 +49,197 @@ body {
   background: var(--background);
   color: var(--foreground);
   overflow-x: clip;
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family:
+    var(--font-noto-nastaliq), var(--font-AKETAB), Georgia, 'Times New Roman',
+    serif;
+}
+
+::selection {
+  background: rgba(107, 31, 46, 0.85);
+  color: var(--cream);
 }
 
 ::-webkit-scrollbar {
   width: 0;
   background: transparent;
+}
+
+/* ------------------------------- Focus ---------------------------------- */
+
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* -------------------------- Scroll progress ----------------------------- */
+
+.scroll-progress {
+  position: fixed;
+  inset-block-start: 0;
+  inset-inline: 0;
+  z-index: 60;
+  height: 2px;
+  transform-origin: 0% 50%;
+  background: linear-gradient(90deg, var(--burgundy) 0%, var(--gold) 100%);
+  box-shadow: 0 0 12px rgba(232, 214, 163, 0.45);
+  pointer-events: none;
+}
+
+/* ----------------------------- Section seams ---------------------------- */
+/* Short gradient bands that let one section colour bleed into the next
+   instead of butting up hard against it. */
+
+.seam {
+  display: block;
+  height: clamp(4rem, 9vw, 8rem);
+  width: 100%;
+  pointer-events: none;
+}
+
+.seam--cream-to-ink {
+  background: linear-gradient(180deg, var(--cream) 0%, var(--ink) 100%);
+}
+.seam--ink-to-olive {
+  background: linear-gradient(180deg, var(--ink) 0%, var(--olive) 100%);
+}
+.seam--cream-to-olive {
+  background: linear-gradient(180deg, var(--cream) 0%, var(--olive) 100%);
+}
+
+/* ------------------------------- Cursor --------------------------------- */
+
+.cursor-dot,
+.cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  pointer-events: none;
+  border-radius: 999px;
+  translate: -50% -50%;
+  will-change: transform;
+}
+
+.cursor-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--gold);
+}
+
+.cursor-ring {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid rgba(232, 214, 163, 0.65);
+  color: var(--cream);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition:
+    width var(--dur-fast) var(--ease-standard),
+    height var(--dur-fast) var(--ease-standard),
+    background-color var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard);
+}
+
+.cursor-ring.is-active {
+  width: 64px;
+  height: 64px;
+  background: rgba(232, 214, 163, 0.85);
+  border-color: transparent;
+  color: var(--ink);
+}
+
+.cursor-ring.is-view {
+  width: 84px;
+  height: 84px;
+  background: rgba(232, 214, 163, 0.9);
+  border-color: transparent;
+  color: var(--ink);
+}
+
+html.has-custom-cursor,
+html.has-custom-cursor * {
+  cursor: none !important;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .cursor-dot,
+  .cursor-ring {
+    display: none;
+  }
+}
+
+/* ------------------------------ Skeletons -------------------------------- */
+
+.fs-skeleton {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  background: rgba(232, 214, 163, 0.08);
+}
+
+.fs-skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(232, 214, 163, 0.18),
+    transparent
+  );
+  animation: fs-shimmer 1.5s infinite;
+}
+
+.fs-skeleton--media {
+  aspect-ratio: 4 / 5;
+  border-radius: 0;
+}
+
+.fs-skeleton--line {
+  height: 0.9rem;
+  margin-top: 0.6rem;
+}
+
+@keyframes fs-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* ------------------------------ Marquee --------------------------------- */
+
+@keyframes marquee-drift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+/* ------------------------- Reduced motion ------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .marquee__track {
+    animation: none !important;
+    transform: none !important;
+  }
 }

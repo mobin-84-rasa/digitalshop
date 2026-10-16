@@ -24,11 +24,11 @@
     ),
     linear-gradient(180deg, var(--ad-bg) 0%, var(--ad-bg-deep) 100%);
   color: var(--ad-primary);
-  font-family: var(--font-AKETAB), var(--font-cinzel), Georgia, serif;
+  font-family: var(--font-noto-nastaliq), var(--font-AKETAB), Georgia, serif;
 }
 
 .ad-display {
-  font-family: var(--font-AKETAB), var(--font-cinzel), Georgia, serif;
+  font-family: var(--font-noto-nastaliq), var(--font-AKETAB), Georgia, serif;
   letter-spacing: 0.02em;
 }
 .ad-muted {

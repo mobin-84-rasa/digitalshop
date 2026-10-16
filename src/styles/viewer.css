@@ -1,0 +1,84 @@
+/* Shared fullscreen zoom viewer, used by the gallery and product pages. */
+
+.fs-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  flex-direction: column;
+  --fs-primary: #efe6dd;
+  --fs-border: rgba(232, 214, 163, 0.32);
+  background: rgba(6, 7, 4, 0.94);
+}
+
+.fs-viewer__scrim {
+  position: absolute;
+  inset: 0;
+  border: none;
+  background: transparent;
+  cursor: zoom-out;
+}
+
+.fs-viewer__stage {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  margin: clamp(1rem, 4vh, 3rem);
+  overflow: hidden;
+  cursor: grab;
+}
+
+.fs-viewer__stage:active {
+  cursor: grabbing;
+}
+
+.fs-viewer__img {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.fs-viewer__bar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  color: var(--fs-primary);
+  background: rgba(12, 10, 8, 0.6);
+}
+
+.fs-viewer__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-size: 1rem;
+}
+
+.fs-viewer__meta strong {
+  font-size: 1.1rem;
+}
+
+.fs-viewer__controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.fs-viewer__controls button {
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 999px;
+  border: 1px solid var(--fs-border);
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
+  cursor: pointer;
+  transition: background 0.25s var(--ease-standard);
+}
+
+.fs-viewer__controls button:hover {
+  background: rgba(232, 214, 163, 0.18);
+}

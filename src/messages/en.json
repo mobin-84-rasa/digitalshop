@@ -1,11 +1,12 @@
 {
   "Common": {
-    "title": "Kerman House",
+    "title": "Morshedzadeh Gallery",
     "home": "Home",
     "shop": "Collection",
     "contact": "Contact",
     "buy": "Buy Now",
     "consult": "Consultation",
+    "privateViewing": "Request a private viewing",
     "available": "Available",
     "sold": "Sold",
     "reserved": "Reserved",
@@ -13,7 +14,7 @@
     "search": "Search",
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
-    "logoAlt": "Kerman House",
+    "logoAlt": "Morshedzadeh Gallery",
     "cart": "Cart",
     "total": "Total",
     "quantity": "Qty",
@@ -43,6 +44,7 @@
     "title": "Gallery",
     "header": "Morshedzadeh",
     "available": "Only Available",
+    "details": "View details",
     "t1": "Eternal Art",
     "d1": "Each pattern tells a story of Iranian history and culture; rugs woven with love to be part of your life for years.",
     "t2": "Garden Narrative",
@@ -113,7 +115,7 @@
     "total": "Total"
   },
   "Admin": {
-    "brand": "Kerman Admin",
+    "brand": "Morshedzadeh Admin",
     "panel": "Control Panel",
     "login": {
       "title": "Admin Sign In",
@@ -135,7 +137,7 @@
     },
     "overview": {
       "title": "Overview",
-      "subtitle": "A snapshot of the Kerman House catalogue.",
+      "subtitle": "A snapshot of the Morshedzadeh Gallery catalogue.",
       "carpets": "Rugs",
       "available": "Available",
       "reserved": "Reserved",
@@ -253,7 +255,7 @@
     }
   },
   "Meta": {
-    "title": "Kerman House · Persian Carpet Art",
+    "title": "Morshedzadeh Gallery · Persian Carpet Art",
     "description": "Handmade Persian carpets — heritage, collection and private viewings."
   },
   "Values": {
@@ -263,6 +265,17 @@
     "authenticDesc": "Sourced direct from the weavers",
     "delivery": "Worldwide delivery",
     "deliveryDesc": "Insured and fully tracked"
+  },
+  "Footer": {
+    "galleryName": "Morshedzadeh Gallery",
+    "tagline": "Exquisite handmade rugs and carpets from the heart of Persia. A lasting heritage for generations.",
+    "navigation": "Navigation",
+    "contactUs": "Contact Us",
+    "phone": "+98 21 1234 5678",
+    "email": "info@morshedzadeh.gallery",
+    "address": "No. 123, Vali-e-Asr Ave., Tehran",
+    "followUs": "Follow Us",
+    "copyright": "© {year} Morshedzadeh Gallery. All rights reserved."
   },
   "NotFound": {
     "title": "Page not found",

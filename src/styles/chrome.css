@@ -1,0 +1,417 @@
+/* Khaneh Kerman — shared chrome: preloader, header, menus, search, cart. */
+
+/* ------------------------------- Preloader ------------------------------ */
+
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(
+    ellipse at 50% 38%,
+    #7c2438 0%,
+    #4a0f1c 58%,
+    #220810 100%
+  );
+  color: #f5ebdc;
+}
+
+.preloader__inner {
+  display: grid;
+  justify-items: center;
+  gap: 1.1rem;
+}
+
+.preloader__mark {
+  color: #e8d6a3;
+  font-size: 1.7rem;
+  animation: preloader-spin 3.6s linear infinite;
+}
+
+@keyframes preloader-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.preloader__line {
+  width: 8rem;
+  height: 0.5rem;
+}
+
+.preloader__line line {
+  stroke: #e8d6a3;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+/* -------------------------------- Header -------------------------------- */
+.menu-toggle-btn {
+  display: grid;
+}
+
+@media (min-width: 1024px) {
+  .menu-toggle-btn {
+    display: none !important; /* ← اگه بازم دیده شد، !important اضافه کن */
+  }
+}
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  width: 100%;
+  background: #f5ebdc;
+  color: var(--burgundy);
+  font-family:
+    var(--font-noto-nastaliq), var(--font-Media), var(--font-AKETAB), Georgia,
+    serif;
+  transition:
+    box-shadow var(--dur-base) var(--ease-standard),
+    background-color var(--dur-base) var(--ease-standard),
+    backdrop-filter var(--dur-base) var(--ease-standard);
+}
+
+.site-header.is-stuck {
+  background: #f5ebdc !important;
+  box-shadow: none !important;
+  border: none !important;
+  outline: none !important;
+}
+
+.site-header__row {
+  position: relative;
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1440px;
+  padding: 1rem 1rem; /* ← این رو کم کن */
+}
+
+@media (min-width: 640px) {
+  .site-header__row {
+    padding-inline: 2rem;
+  }
+}
+@media (min-width: 1024px) {
+  .site-header__row {
+    padding-inline: 3rem;
+    padding-block: 0.8rem; /* ← این رو هم کم کن */
+  }
+}
+
+/* Animated nav underline that grows from the reading-direction start. */
+.nav-link {
+  position: relative;
+  /* font-size: 1.1rem; */
+  font-weight: 500;
+  text-transform: uppercase;
+  /*letter-spacing: 0.1em;*/
+  text-decoration: none;
+}
+
+.nav-link__label {
+  position: relative;
+  display: inline-block;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  bottom: -0.35rem;
+  width: 100%;
+  height: 1.5px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: var(--underline-origin, left);
+  transition: transform var(--dur-base) var(--ease-standard);
+}
+
+.nav-link:hover::after,
+.nav-link:focus-visible::after,
+.nav-link[aria-current="page"]::after {
+  transform: scaleX(1);
+}
+
+.icon-btn {
+  display: grid;
+  place-items: center;
+  padding: 0.35rem;
+  border: none;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-standard);
+}
+
+.icon-btn:hover {
+  color: var(--burgundy-deep);
+}
+
+/* Cart count badge with a pop on add. */
+.cart-badge {
+  position: absolute;
+  top: -0.35rem;
+  inset-inline-end: -0.5rem;
+  display: grid;
+  place-items: center;
+  min-width: 1.15rem;
+  height: 1.15rem;
+  padding: 0 0.25rem;
+  border-radius: 999px;
+  background: var(--burgundy);
+  color: var(--cream);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* ------------------------------ Mobile menu ----------------------------- */
+
+.mobile-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  background: radial-gradient(
+    ellipse at 50% 0%,
+    #7c2438 0%,
+    #4a0f1c 55%,
+    #220810 100%
+  );
+  color: var(--cream);
+}
+
+.mobile-menu__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mobile-menu__links {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.mobile-menu__link {
+  overflow: hidden;
+  display: block;
+  font-family: var(--font-noto-nastaliq), var(--font-AKETAB), Georgia, serif;
+  font-size: clamp(2rem, 11vw, 3.4rem);
+  text-decoration: none;
+  color: var(--cream);
+}
+
+.mobile-menu__langs {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(245, 235, 220, 0.25);
+}
+
+/* ------------------------------ Search palette -------------------------- */
+
+.search-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  justify-content: center;
+  padding: clamp(3rem, 10vh, 8rem) 1rem 1rem;
+  background: rgba(12, 10, 8, 0.62);
+  backdrop-filter: blur(6px);
+}
+
+.search-palette {
+  width: 100%;
+  max-width: 40rem;
+  align-self: flex-start;
+  display: flex;
+  flex-direction: column;
+  max-height: min(70svh, 34rem);
+  border: 1px solid rgba(232, 214, 163, 0.32);
+  border-radius: 1.25rem;
+  background: linear-gradient(180deg, #2f3b18 0%, #232c12 100%);
+  color: #efe6dd;
+  overflow: hidden;
+  box-shadow: 0 2rem 5rem -2rem rgba(0, 0, 0, 0.8);
+}
+
+.search-input-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(232, 214, 163, 0.22);
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 1.2rem;
+  outline: none;
+}
+
+.search-input::placeholder {
+  color: rgba(239, 230, 221, 0.45);
+}
+
+.search-results {
+  overflow-y: auto;
+  padding: 0.5rem;
+}
+
+.search-result {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.75rem;
+  text-decoration: none;
+  color: inherit;
+  transition: background var(--dur-fast) var(--ease-standard);
+}
+
+.search-result:hover,
+.search-result.is-active {
+  background: rgba(232, 214, 163, 0.12);
+}
+
+.search-result__media {
+  position: relative;
+  width: 2.75rem;
+  height: 3.25rem;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 0.4rem;
+  background: #12160b;
+}
+
+.search-result__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.search-state {
+  padding: 2.5rem 1rem;
+  text-align: center;
+  color: rgba(239, 230, 221, 0.7);
+}
+
+/* ------------------------------ Cart drawer ----------------------------- */
+
+.cart-drawer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 28rem;
+  background: linear-gradient(180deg, #232c12 0%, #1a2010 100%);
+  color: #efe6dd;
+  border-inline-start: 1px solid rgba(232, 214, 163, 0.28);
+}
+
+.cart-drawer__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(232, 214, 163, 0.22);
+}
+
+.cart-drawer__scroll {
+  display: grid;
+  gap: 0.75rem;
+  align-content: start;
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 1.25rem;
+}
+
+.cart-line {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid rgba(232, 214, 163, 0.2);
+  border-radius: 0.75rem;
+}
+
+.cart-line__media {
+  position: relative;
+  height: 5rem;
+  width: 4rem;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  background: #12160b;
+}
+
+.cart-qty-btn {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(232, 214, 163, 0.3);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.cart-drawer__footer {
+  padding: 1rem 1.25rem;
+  border-top: 1px solid rgba(232, 214, 163, 0.22);
+}
+
+.cart-checkout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0.8rem 1.8rem;
+  border-radius: 999px;
+  border: 1px solid #e8d6a3;
+  background: #e8d6a3;
+  color: #d7573d;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* Logo sizing */
+
+.site-logo {
+  width: 180px;
+  height: auto;
+}
+
+@media (min-width: 640px) {
+  .site-logo {
+    width: 260px;
+  }
+}
+
+/* Header background fix */
+.site-header,
+.site-header.is-stuck {
+  background-color: #f5ebdc !important;
+  box-shadow: none !important;
+  border: none !important;
+  outline: none !important;
+}
+
+.site-header::before,
+.site-header::after {
+  content: none !important;
+}

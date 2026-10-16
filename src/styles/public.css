@@ -19,13 +19,13 @@
     ),
     linear-gradient(180deg, var(--pub-bg) 0%, var(--pub-bg-deep) 100%);
   color: var(--pub-primary);
-  font-family: var(--font-AKETAB), var(--font-cinzel), Georgia, serif;
-  font-size: clamp(1.05rem, 1rem + 0.4vw, 1.35rem);
+  font-family: var(--font-noto-nastaliq), var(--font-AKETAB), Georgia, serif;
+  font-size: clamp(1.15rem, 1.05rem + 0.5vw, 1.45rem);
   line-height: 1.6;
 }
 
 .pub-display {
-  font-family: var(--font-AKETAB), var(--font-cinzel), Georgia, serif;
+  font-family: var(--font-noto-nastaliq), var(--font-AKETAB), Georgia, serif;
   letter-spacing: 0.02em;
 }
 .pub-muted {
@@ -65,7 +65,7 @@
   gap: 0.4rem;
 }
 .pub-label {
-  font-size: 0.95rem;
+  font-size: 1rem;
   color: var(--pub-gold);
   letter-spacing: 0.04em;
 }
@@ -141,7 +141,7 @@
 
 .pub-error {
   color: #e0a0a0;
-  font-size: 0.95rem;
+  font-size: 1rem;
 }
 .pub-success {
   border: 1px solid var(--pub-border);

@@ -13,15 +13,16 @@
     var(--fs-background-deep) 100%
   );
   color: var(--fs-primary);
-  font-family: var(--font-AKETAB), serif;
+  font-family: var(--font-noto-nastaliq), var(--font-AKETAB), Georgia, serif;
 }
 
 .fs-display {
-  font-family: var(--font-AKETAB), serif;
+  font-family: var(--font-noto-nastaliq), var(--font-AKETAB), Georgia, serif;
   color: var(--fs-primary);
 }
 .fs-muted {
   color: var(--fs-muted-foreground);
+  font-family: var(--font-AKETAB), Georgia, serif;
 }
 .fs-muted-gold {
   color: var(--fs-muted-gold);
@@ -30,7 +31,7 @@
   display: flex;
   gap: 0.5rem;
   padding: 2rem 1.5rem 0;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
 }
 .fs-breadcrumb__link {
   color: var(--fs-muted-gold);
@@ -71,11 +72,11 @@
   background: rgba(35, 44, 18, 0.55);
 }
 .fs-price-lg {
-  font-size: 2.5rem;
+  font-size: 2.75rem;
   color: var(--fs-gold);
 }
 .fs-price__unit {
-  font-size: 1rem;
+  font-size: 1.1rem;
 }
 .fs-cta {
   padding: 1rem 2rem;
@@ -101,11 +102,11 @@
   margin-top: 1.5rem;
 }
 .fs-specs__grid dt {
-  font-size: 0.8rem;
+  font-size: 0.875rem;
   color: var(--fs-muted-gold);
 }
 .fs-specs__grid dd {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   margin: 0;
 }
 .fs-rail {
